@@ -1,0 +1,30 @@
+{
+  "name": "ttfm-discord-bot",
+  "version": "0.1.0",
+  "description": "discord bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node ./src/index.ts",
+    "test": "jest",
+    "build": "npm run clean && npm run compile",
+    "clean": "rimraf -rf ./dist",
+    "compile": "tsc -p tsconfig.build.json",
+    "typecheck": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jest": "^27.4.0",
+    "@types/node": "^16.11.1",
+    "jest": "^27.4.5",
+    "ts-jest": "^27.1.2",
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4",
+    "wait-for-expect": "^3.0.2"
+  },
+  "dependencies": {
+    "discord.js": "^13.2.0",
+    "node-fetch": "^2.6.5",
+    "socket.io-client": "^4.4.0"
+  }
+}
