@@ -25,7 +25,7 @@ export const config: IConfig = {
 npm run start
 ```
 
-## Bot commads:
+## Bot commands:
 
 ```
 !status
