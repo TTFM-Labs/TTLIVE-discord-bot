@@ -1,4 +1,4 @@
-# TTFM Bot
+# TTLive Bot
 
 TTFM discord bot built with [discord.js](https://discord.js.org/#/)
 
