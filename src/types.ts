@@ -51,15 +51,17 @@ export type DjSeat = {
 };
 
 export interface IInitialStateReceived {
-  djSeats: ValueMapWrapper<number, DjSeat>;
+  djs: DjSeat[];
 }
 
 export interface ITakeDjSeat {
   userUuid: string;
+  djs: DjSeat[];
 }
 
 export interface ILeaveDjSeat {
   userUuid: string;
+  djs: DjSeat[];
 }
 
 export interface ISpotifyTrack {
