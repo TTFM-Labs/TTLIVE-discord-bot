@@ -320,8 +320,6 @@ export class Bot {
       return;
     }
 
-    console.log(this.socket, this.avatarId, nextTrack);
-
     this.socket?.emit(SocketMessages.takeDjSeat, {
       avatarId: this.avatarId,
       nextTrack,
