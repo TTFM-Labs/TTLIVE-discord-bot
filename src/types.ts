@@ -85,7 +85,6 @@ export type BotMode = "testing" | "bot";
 
 export interface IConfig {
   discord_token: string;
-  spotify_refresh_token: string;
   spotify_credentials: string;
   email: string;
   password: string;

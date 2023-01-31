@@ -28,7 +28,6 @@ describe("Bot tests", () => {
   let eventEmitter: EventEmitter;
 
   const accessToken = "test-accessToken";
-  const spotifyRefreshToken = "test-spotifyRefreshToken";
   const spotifyCredentials = "test-spotifyCredentials";
   const avatarId = "test-avatar-id";
   const botUuid = "test-bot-uuid";
@@ -46,7 +45,6 @@ describe("Bot tests", () => {
     bot = Bot.createBot(
       io,
       accessToken,
-      spotifyRefreshToken,
       spotifyCredentials,
       avatarId,
       botUuid,
