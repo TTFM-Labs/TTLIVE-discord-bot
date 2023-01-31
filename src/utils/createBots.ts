@@ -11,8 +11,7 @@ export interface IBots {
 }
 
 export const createBots = async (botInstancesCount: number): Promise<IBots> => {
-  const { email, password, spotify_credentials, spotify_refresh_token } =
-    config;
+  const { email, password, spotify_credentials } = config;
   const bots: IBots = {};
   const { accessToken } = await logIn({
     email,
@@ -25,7 +24,6 @@ export const createBots = async (botInstancesCount: number): Promise<IBots> => {
     const bot = Bot.createBot(
       io,
       accessToken,
-      spotify_refresh_token,
       spotify_credentials,
       profile.avatarId,
       profile.uuid,

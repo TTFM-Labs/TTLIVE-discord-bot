@@ -18,7 +18,6 @@ export type Io = typeof io;
 export class Bot {
   private readonly io: Io;
   public accessToken: string;
-  private spotifyRefreshToken: string;
   private spotifyCredentials: string;
   private avatarId: string;
   private botUuid: string;
@@ -29,7 +28,6 @@ export class Bot {
   private constructor(
     io: Io,
     accessToken: string,
-    spotifyRefreshToken: string,
     spotifyCredentials: string,
     avatarId: string,
     botUuid: string,
@@ -37,7 +35,6 @@ export class Bot {
   ) {
     this.io = io;
     this.accessToken = accessToken;
-    this.spotifyRefreshToken = spotifyRefreshToken;
     this.spotifyCredentials = spotifyCredentials;
     this.avatarId = avatarId;
     this.botUuid = botUuid;
@@ -47,7 +44,6 @@ export class Bot {
   public static createBot(
     io: Io,
     accessToken: string,
-    spotifyRefreshToken: string,
     spotifyCredentials: string,
     avatarId: string,
     botUuid: string,
@@ -56,7 +52,6 @@ export class Bot {
     const _bot = new Bot(
       io,
       accessToken,
-      spotifyRefreshToken,
       spotifyCredentials,
       avatarId,
       botUuid,
@@ -269,7 +264,6 @@ export class Bot {
 
     const playlist = await fetchSpotifyPlaylist(
       playlistId,
-      this.spotifyRefreshToken,
       this.spotifyCredentials
     );
 

@@ -15,7 +15,9 @@ npm i
 ```
 export const config: IConfig = {
   discord_token: "xxx....."
-  spotify_refresh_token: "xxx..."
+  spotify_credentials: "{client_id}:{client_secret}" (base64 encoded)
+  email: {tt.live email},
+  password: {tt.live password}
   ......
 ```
 
@@ -69,5 +71,9 @@ To leave the dj seat use the bot
 To take the dj seat use the bot number and dj seat number
 
 ```
+
 !changeMode <bot> | <testing>
+
+```
+
 ```

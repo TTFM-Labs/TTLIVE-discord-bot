@@ -3,16 +3,15 @@ import fetch from "node-fetch";
 import { ISpotifyPlaylist } from "../types";
 
 const getSpotifyAccessToken = async (
-  spotifyRefreshToken: string,
   spotifyCredentials: string
 ): Promise<string> => {
   const options = {
     method: "POST",
     headers: {
-      Authorization: `Basic  ${spotifyCredentials}`,
+      Authorization: `Basic ${spotifyCredentials}`,
       "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: `grant_type=refresh_token&refresh_token=${spotifyRefreshToken}`,
+    body: `grant_type=client_credentials`,
   };
 
   const response = await fetch(
@@ -27,13 +26,9 @@ const getSpotifyAccessToken = async (
 
 export const fetchSpotifyPlaylist = async (
   playlistId: string,
-  spotifyRefreshToken: string,
   spotifyCredentials: string
 ): Promise<ISpotifyPlaylist | undefined> => {
-  const token = await getSpotifyAccessToken(
-    spotifyRefreshToken,
-    spotifyCredentials
-  );
+  const token = await getSpotifyAccessToken(spotifyCredentials);
 
   const options = {
     method: "GET",

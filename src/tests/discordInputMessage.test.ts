@@ -35,7 +35,6 @@ describe("Discord input message tests", () => {
       const bot = Bot.createBot(
         io,
         `accessToken-${i}`,
-        `spotifyRefreshToken-${i}`,
         `spotifyCredentials-${i}`,
         `avatarId-${i}`,
         `botUuid-${i}`,
