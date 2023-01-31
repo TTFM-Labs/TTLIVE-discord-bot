@@ -1,9 +1,8 @@
-import { BotMode, IInitialStateReceived, Song } from "./types";
+import { BotMode, DjSeat, IInitialStateReceived, Song } from "./types";
 
 export class BotState {
   public songs: Song[] = [];
   public playingUserUuids: (string | null)[] | [] = [];
-  public djSeatNumber: number | null = null;
   public roomSlug: string | undefined;
   public botMode: BotMode = "testing";
 
@@ -18,19 +17,11 @@ export class BotState {
   }
 
   public setInitialState(msg: IInitialStateReceived): void {
-    this.playingUserUuids = msg.djSeats.value
-      .map((item) => item[1].userUuid)
-      .filter((a) => a);
+    this.playingUserUuids = msg.djs.map(({ userUuid }) => userUuid);
   }
 
-  public addNewPlayingDj(userUuid: string): void {
-    this.playingUserUuids = [...this.playingUserUuids, userUuid];
-  }
-
-  public removePlayingDj(userUuid: string): void {
-    this.playingUserUuids = this.playingUserUuids.filter(
-      (item) => item !== userUuid
-    );
+  public setPlayingUserUuids(djs: DjSeat[]): void {
+    this.playingUserUuids = djs.map(({ userUuid }) => userUuid);
   }
 
   public checkIfShouldStayOnStage(botUuid: string): boolean {
@@ -43,14 +34,6 @@ export class BotState {
     const bot = this.playingUserUuids.find((item) => item === botUuid);
 
     return !!bot;
-  }
-
-  public setDjSeatNumber(seat: string | null): void {
-    if (seat === null) {
-      this.djSeatNumber = null;
-    } else {
-      this.djSeatNumber = Number(seat);
-    }
   }
 
   public setRoomSlug(roomSlug: string | undefined): void {

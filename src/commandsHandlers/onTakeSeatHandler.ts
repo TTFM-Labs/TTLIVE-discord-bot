@@ -8,13 +8,13 @@ export const onTakeSeatHandler = (
   message: Message,
   args: string[] | undefined
 ): void => {
-  if (!args || args.length < 2) {
+  if (!args || args.length === 0) {
     message.reply("Invalid command");
 
     return;
   }
 
-  const [botNumber, djSeatNumber] = args;
+  const [botNumber] = args;
 
   const isValidKey = checkBotKey(botNumber, bots, message);
 
@@ -22,7 +22,7 @@ export const onTakeSeatHandler = (
     return;
   }
 
-  bots[botNumber].takeDjSeat(djSeatNumber);
+  bots[botNumber].takeDjSeat();
 
-  message.reply(`Bot ${botNumber} taking seat: ${djSeatNumber}`);
+  message.reply(`Bot ${botNumber} taking DJ Seat`);
 };

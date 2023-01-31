@@ -62,30 +62,6 @@ Object {
     expect(botState.playingUserUuids).toContain(userUuid_2);
   });
 
-  it("shoud add user uuid", () => {
-    const newUserUuid = "third-user-uuid";
-    botState.setInitialState(initialStateReceivedMock);
-
-    expect(botState.playingUserUuids).toHaveLength(2);
-
-    botState.addNewPlayingDj(newUserUuid);
-
-    expect(botState.playingUserUuids).toHaveLength(3);
-    expect(botState.playingUserUuids).toContain(userUuid_1);
-    expect(botState.playingUserUuids).toContain(userUuid_2);
-    expect(botState.playingUserUuids).toContain(newUserUuid);
-  });
-
-  it("shoud remove user-1 uuid", () => {
-    botState.setInitialState(initialStateReceivedMock);
-    expect(botState.playingUserUuids).toHaveLength(2);
-
-    botState.removePlayingDj(userUuid_1);
-
-    expect(botState.playingUserUuids).toHaveLength(1);
-    expect(botState.playingUserUuids).toContain(userUuid_2);
-  });
-
   it("checkIfShouldStayOnStage should return false", () => {
     const botUuid = userUuid_1;
     botState.setInitialState(initialStateReceivedMock);
@@ -102,7 +78,6 @@ Object {
       roomSlug: "test-slug",
       songs: [],
       playingUserUuids: [botUuid],
-      djSeatNumber: 0,
       botMode: "bot",
     });
 
@@ -111,13 +86,6 @@ Object {
     const shouldStayOnStage = botState.checkIfShouldStayOnStage(botUuid);
 
     expect(shouldStayOnStage).toBeTruthy();
-  });
-
-  it("should set DjSeatNumber", () => {
-    const seatNumberStr = "1";
-    botState.setDjSeatNumber(seatNumberStr);
-
-    expect(botState.djSeatNumber).toBe(Number(seatNumberStr));
   });
 
   it("should set roomSlug", () => {
@@ -133,7 +101,6 @@ Object {
       roomSlug: "test-slug",
       songs: [],
       playingUserUuids: [botUuid],
-      djSeatNumber: 0,
       botMode: "bot",
     });
 
@@ -149,7 +116,6 @@ Object {
       roomSlug: "test-slug",
       songs: [],
       playingUserUuids: [userUuid_2],
-      djSeatNumber: 0,
       botMode: "bot",
     });
 

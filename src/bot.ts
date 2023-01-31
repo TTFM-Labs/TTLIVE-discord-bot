@@ -89,7 +89,7 @@ export class Bot {
 
   private setTakeDjSeatListener(socket: Socket): void {
     socket.on(SocketMessages.takeDjSeat, (msg: ITakeDjSeat) => {
-      this.botState.addNewPlayingDj(msg.userUuid);
+      this.botState.setPlayingUserUuids(msg.djs);
 
       this.takeOrLeaveDjSeat();
     });
@@ -97,7 +97,7 @@ export class Bot {
 
   private setLeaveDjSeatListener(socket: Socket): void {
     socket.on(SocketMessages.leaveDjSeat, (msg: ILeaveDjSeat) => {
-      this.botState.removePlayingDj(msg.userUuid);
+      this.botState.setPlayingUserUuids(msg.djs);
 
       this.takeOrLeaveDjSeat();
     });
@@ -260,10 +260,7 @@ export class Bot {
     return isClosed;
   }
 
-  public async playPlaylist(
-    playlistId: string,
-    djSeatNumber: string
-  ): Promise<void> {
+  public async playPlaylist(playlistId: string): Promise<void> {
     if (this.botState.roomSlug === undefined) {
       throw new Error("Please connect to the room first");
     }
@@ -283,8 +280,6 @@ export class Bot {
     const songs = this.getSongsFromPlaylist(playlist);
     this.botState.setSongs(songs);
 
-    this.botState.setDjSeatNumber(djSeatNumber);
-
     if (this.botState.getBotMode() === "testing") {
       this.takeDjSeat();
     } else {
@@ -295,7 +290,6 @@ export class Bot {
   }
 
   public async leaveDjSeat(): Promise<void> {
-    this.botState.setDjSeatNumber(null);
     this.emitLeaveDjSeatMsg();
   }
 
@@ -307,11 +301,7 @@ export class Bot {
     }
   }
 
-  public takeDjSeat(djSeatStr?: string): void {
-    if (djSeatStr) {
-      this.botState.setDjSeatNumber(djSeatStr);
-    }
-
+  public takeDjSeat(): void {
     const nextTrack =
       this.botState.songs.length === 0
         ? null
@@ -325,15 +315,13 @@ export class Bot {
   private emitTakeDjSeatMsg(nextTrack: null | { song: Song }): void {
     if (
       !this.botState.checkIfShouldStayOnStage(this.botUuid) ||
-      this.botState.isBotDj(this.botUuid) ||
-      this.botState.djSeatNumber === null
+      this.botState.isBotDj(this.botUuid)
     ) {
       return;
     }
 
     this.socket?.emit(SocketMessages.takeDjSeat, {
       avatarId: this.avatarId,
-      djSeatKey: this.botState.djSeatNumber,
       nextTrack,
     });
   }

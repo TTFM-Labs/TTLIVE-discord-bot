@@ -8,14 +8,14 @@ export const onPlayPlaylistHandler = (
   message: Message,
   args: string[] | undefined
 ): void => {
-  if (!args || args.length < 3) {
+  if (!args || args.length < 2) {
     message.reply("Invalid command");
 
     return;
   }
   message.reply("Fetching playlist...");
 
-  const [botNumber, playlistId, DjSeatNumber] = args;
+  const [botNumber, playlistId] = args;
 
   const isValidKey = checkBotKey(botNumber, bots, message);
 
@@ -24,7 +24,7 @@ export const onPlayPlaylistHandler = (
   }
 
   bots[botNumber]
-    .playPlaylist(playlistId, DjSeatNumber)
+    .playPlaylist(playlistId)
     .then(() => {
       message.reply(`Playing playlist ${playlistId}`);
     })

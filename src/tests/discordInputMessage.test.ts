@@ -79,10 +79,9 @@ describe("Discord input message tests", () => {
 
   it("should emit takeDjSeat msg if input is valid", () => {
     const botNum = "1";
-    const seatNum = "3";
 
     const discordMessage = {
-      content: `!takedj ${botNum} ${seatNum}`,
+      content: `!takedj ${botNum}`,
       author: { bot: null },
       reply,
     };
@@ -93,7 +92,6 @@ describe("Discord input message tests", () => {
 
     expect(socketMock.emit).toBeCalledWith("takeDjSeat", {
       avatarId: `avatarId-${botNum}`,
-      djSeatKey: Number(seatNum),
       nextTrack: null,
     });
   });

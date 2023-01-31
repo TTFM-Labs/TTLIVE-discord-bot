@@ -52,7 +52,7 @@ To connect to password protected room, use the bot number, the room slug and the
 To disconect from the room use the bot number
 
 ```
-!playPlaylist <botNumber> <playlistId> <DjseatNumber>
+!playPlaylist <botNumber> <playlistId>
 ```
 
 Play selected playlist
@@ -64,8 +64,7 @@ Play selected playlist
 To leave the dj seat use the bot
 
 ```
-!takeDJ <botNumber> <DjseatNumber>
-```
+!takeDJ <botNumber>
 
 To take the dj seat use the bot number and dj seat number
 
