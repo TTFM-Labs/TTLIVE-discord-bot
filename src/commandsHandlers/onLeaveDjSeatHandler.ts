@@ -23,7 +23,7 @@ export const onLeaveDjSeatHandler = (
   }
 
   bots[botNumber]
-    .leaveDjSeat()
+    .removeDj()
     .then(() => {
       message.reply(`Bot-${botNumber} left dj seat`);
     })

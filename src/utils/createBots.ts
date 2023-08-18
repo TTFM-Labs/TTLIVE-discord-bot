@@ -21,14 +21,7 @@ export const createBots = async (botInstancesCount: number): Promise<IBots> => {
   for (let i = 1; i <= botInstancesCount; i++) {
     const profile = await getUserProfile(accessToken);
 
-    const bot = Bot.createBot(
-      io,
-      accessToken,
-      spotify_credentials,
-      profile.avatarId,
-      profile.uuid,
-      new BotState()
-    );
+    const bot = new Bot(accessToken, spotify_credentials, profile.uuid);
     bots[i] = bot;
   }
 

@@ -1,39 +1,45 @@
-import { BotMode, DjSeat, IInitialStateReceived, Song } from "./types";
+import { RoomState } from "@ttfm-labs/socket";
+import { BotMode } from "./types";
+import { MinimalCrateSongResDTO } from "@ttfm-labs/socket/dist-client/types/services";
 
 export class BotState {
-  public songs: Song[] = [];
-  public playingUserUuids: (string | null)[] | [] = [];
+  public roomState: RoomState | undefined;
+  public songs: MinimalCrateSongResDTO[] = [];
   public roomSlug: string | undefined;
-  public botMode: BotMode = "testing";
+  public botMode: BotMode = "bot";
+  public songIndex = 0;
 
-  public setSongs(songs: Song[]): void {
+  public setSongs(songs: MinimalCrateSongResDTO[]): void {
     this.songs = songs;
   }
 
-  public getRandomSong(): Song | undefined {
+  public getRandomSong(): MinimalCrateSongResDTO | undefined {
     const song = this.songs[Math.floor(Math.random() * this.songs.length)];
 
     return song;
   }
 
-  public setInitialState(msg: IInitialStateReceived): void {
-    this.playingUserUuids = msg.djs.map(({ userUuid }) => userUuid);
-  }
-
-  public setPlayingUserUuids(djs: DjSeat[]): void {
-    this.playingUserUuids = djs.map(({ userUuid }) => userUuid);
-  }
-
   public checkIfShouldStayOnStage(botUuid: string): boolean {
-    const playingDjs = this.playingUserUuids.filter((item) => item !== botUuid);
+    if (!this.songs.length) {
+      return false;
+    }
+    const playingDjs =
+      this.roomState?.djs.filter((dj) => dj.userProfile.uuid !== botUuid)
+        .length ?? 0;
 
-    return playingDjs.length === 0;
+    return playingDjs === 0 || this.botMode === "testing";
   }
 
   public isBotDj(botUuid: string): boolean {
-    const bot = this.playingUserUuids.find((item) => item === botUuid);
+    const bot = this.roomState?.djs.some(
+      (dj) => dj.userProfile.uuid === botUuid
+    );
 
     return !!bot;
+  }
+
+  public setRoomState(state: RoomState | undefined) {
+    this.roomState = state;
   }
 
   public setRoomSlug(roomSlug: string | undefined): void {
