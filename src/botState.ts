@@ -1,6 +1,5 @@
-import { RoomState } from "@ttfm-labs/socket";
+import { RoomState, MinimalCrateSongResDTO } from "ttfm-socket";
 import { BotMode } from "./types";
-import { MinimalCrateSongResDTO } from "@ttfm-labs/socket/dist-client/types/services";
 
 export class BotState {
   public roomState: RoomState | undefined;

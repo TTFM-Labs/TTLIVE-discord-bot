@@ -12,7 +12,7 @@ import {
   ServerMessageName,
   SocketClient,
   UpdateNextSongAction,
-} from "@ttfm-labs/socket";
+} from "ttfm-socket";
 import { applyPatch } from "fast-json-patch";
 
 export class Bot {
