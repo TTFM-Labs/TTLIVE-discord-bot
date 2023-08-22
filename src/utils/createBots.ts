@@ -1,7 +1,4 @@
-import { io } from "socket.io-client";
-
 import { Bot } from "../bot";
-import { BotState } from "../botState";
 import { getUserProfile } from "./getUserProfile";
 import { logIn } from "./login";
 import { config } from "../../config";
