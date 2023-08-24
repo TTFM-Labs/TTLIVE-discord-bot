@@ -26,6 +26,6 @@
     "discord.js": "^13.2.0",
     "fast-json-patch": "^3.1.1",
     "node-fetch": "^2.6.5",
-    "ttfm-socket": "^0.2.1"
+    "ttfm-socket": "^0.2.2"
   }
 }
