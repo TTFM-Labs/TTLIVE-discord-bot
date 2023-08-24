@@ -75,10 +75,13 @@ export interface ISpotifyTrack {
     name: string;
   };
 }
+export interface ISpotifyPlaylistTracks {
+  items: ISpotifyTrack[];
+  next: string | null;
+}
+
 export interface ISpotifyPlaylist {
-  tracks: {
-    items: ISpotifyTrack[];
-  };
+  tracks: ISpotifyPlaylistTracks;
 }
 
 export type BotMode = "testing" | "bot";

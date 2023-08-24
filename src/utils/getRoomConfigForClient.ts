@@ -1,10 +1,9 @@
 import fetch from "node-fetch";
 
-import { roomsServiceApiBaseUrl } from "../const";
+import { ROOMS_SERVICE_URL } from "../const";
 
 export interface RoomDto {
-  socketDomain: string;
-  socketPath: string;
+  uuid: string;
 }
 
 export const getRoomConfigForClient = async (
@@ -20,7 +19,7 @@ export const getRoomConfigForClient = async (
 
   try {
     const response = await fetch(
-      `${roomsServiceApiBaseUrl}/rooms/${roomSlug}/join`,
+      `${ROOMS_SERVICE_URL}/rooms/${roomSlug}/join`,
       options
     );
     const roomConfig = await response.json();

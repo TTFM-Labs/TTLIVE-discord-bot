@@ -22,7 +22,7 @@ export const onTakeSeatHandler = (
     return;
   }
 
-  bots[botNumber].takeDjSeat();
+  bots[botNumber].addDj();
 
   message.reply(`Bot ${botNumber} taking DJ Seat`);
 };

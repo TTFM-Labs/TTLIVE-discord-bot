@@ -1,8 +1,13 @@
-# TTLive Bot
+# Turntable LIVE Bot
 
-TTFM discord bot built with [discord.js](https://discord.js.org/#/)
+Turntable LIVE Discord bot built with [discord.js](https://discord.js.org/#/)
 
-## Running the bot
+- [Turntable LIVE Bot](#turntable-live-bot)
+  - [Running the Bot](#running-the-bot)
+  - [Bot Commands](#bot-commands)
+  - [Additional Info](#additional-info)
+
+## Running the Bot
 
 1. Install dependencies
 
@@ -27,7 +32,7 @@ export const config: IConfig = {
 npm run start
 ```
 
-## Bot commands:
+## Bot Commands
 
 ```
 !status
@@ -77,3 +82,7 @@ To take the dj seat use the bot number and dj seat number
 ```
 
 ```
+
+## Additional Info
+
+For more information on the `ttfm-socket` package that handles connecting to rooms, [see here](https://www.npmjs.com/package/ttfm-socket).

@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-import { userServiceApiBaseUrl } from "../const";
+import { USER_SERVICE_URL } from "../const";
 
 export interface ILoginReq {
   email: string;
@@ -25,7 +25,7 @@ export const logIn = async (params: ILoginReq): Promise<ILoginRes> => {
     body: JSON.stringify(requestBody),
   };
 
-  const response = await fetch(`${userServiceApiBaseUrl}/auth/login`, options);
+  const response = await fetch(`${USER_SERVICE_URL}/auth/login`, options);
   const res = await response.json();
 
   return res;

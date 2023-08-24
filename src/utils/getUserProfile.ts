@@ -1,6 +1,6 @@
 import fetch from "node-fetch";
 
-import { userServiceApiBaseUrl } from "../const";
+import { USER_SERVICE_URL } from "../const";
 
 export interface UserProfile {
   avatarId: string;
@@ -17,10 +17,7 @@ export const getUserProfile = async (
     },
   };
 
-  const response = await fetch(
-    `${userServiceApiBaseUrl}/users/profile`,
-    options
-  );
+  const response = await fetch(`${USER_SERVICE_URL}/users/profile`, options);
   const userProfile = await response.json();
 
   return userProfile;

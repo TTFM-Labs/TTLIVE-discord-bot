@@ -1,7 +1,4 @@
-import { io } from "socket.io-client";
-
 import { Bot } from "../bot";
-import { BotState } from "../botState";
 import { getUserProfile } from "./getUserProfile";
 import { logIn } from "./login";
 import { config } from "../../config";
@@ -21,14 +18,7 @@ export const createBots = async (botInstancesCount: number): Promise<IBots> => {
   for (let i = 1; i <= botInstancesCount; i++) {
     const profile = await getUserProfile(accessToken);
 
-    const bot = Bot.createBot(
-      io,
-      accessToken,
-      spotify_credentials,
-      profile.avatarId,
-      profile.uuid,
-      new BotState()
-    );
+    const bot = new Bot(accessToken, spotify_credentials, profile.uuid);
     bots[i] = bot;
   }
 

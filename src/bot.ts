@@ -1,192 +1,60 @@
-import { SocketAddress } from "net";
-import { Socket, io } from "socket.io-client";
 import { BotState } from "./botState";
+import { SOCKET_URL } from "./const";
 
-import {
-  IInitialStateReceived,
-  ILeaveDjSeat,
-  ISpotifyPlaylist,
-  ITakeDjSeat,
-  SocketMessages,
-  Song,
-} from "./types";
-import { fetchSpotifyPlaylist } from "./utils/fetchSpotifyPlaylist";
+import { ISpotifyTrack } from "./types";
+import { fetchSpotifyPlaylistTracks } from "./utils/fetchSpotifyPlaylist";
 import { getRoomConfigForClient } from "./utils/getRoomConfigForClient";
-
-export type Io = typeof io;
+import {
+  ActionName,
+  AddDjAction,
+  MinimalCrateSongResDTO,
+  RemoveDjAction,
+  ServerMessageName,
+  SocketClient,
+  UpdateNextSongAction,
+} from "ttfm-socket";
+import { applyPatch } from "fast-json-patch";
 
 export class Bot {
-  private readonly io: Io;
+  private socketClient: SocketClient | undefined;
   public accessToken: string;
   private spotifyCredentials: string;
-  private avatarId: string;
   private botUuid: string;
-  private socket: Socket | undefined;
 
   public botState: BotState;
 
-  private constructor(
-    io: Io,
+  constructor(
     accessToken: string,
     spotifyCredentials: string,
-    avatarId: string,
     botUuid: string,
-    botState: BotState
+    botState = new BotState()
   ) {
-    this.io = io;
     this.accessToken = accessToken;
     this.spotifyCredentials = spotifyCredentials;
-    this.avatarId = avatarId;
     this.botUuid = botUuid;
     this.botState = botState;
-  }
-
-  public static createBot(
-    io: Io,
-    accessToken: string,
-    spotifyCredentials: string,
-    avatarId: string,
-    botUuid: string,
-    botState: BotState
-  ): Bot {
-    const _bot = new Bot(
-      io,
-      accessToken,
-      spotifyCredentials,
-      avatarId,
-      botUuid,
-      botState
-    );
-
-    return _bot;
   }
 
   private async delay(delay: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, delay));
   }
 
-  private setPlayNextSongListener(socket: Socket): void {
-    socket.on(SocketMessages.playNextSong, () => {
-      this.sendNextTrackToPlay();
-    });
-  }
-
-  private setSendInitialStateListener(socket: Socket): void {
-    socket.on(
-      SocketMessages.sendInitialState,
-      (state: IInitialStateReceived) => {
-        this.botState.setInitialState(state);
-
-        this.takeOrLeaveDjSeat();
-      }
-    );
-  }
-
-  private setTakeDjSeatListener(socket: Socket): void {
-    socket.on(SocketMessages.takeDjSeat, (msg: ITakeDjSeat) => {
-      this.botState.setPlayingUserUuids(msg.djs);
-
-      this.takeOrLeaveDjSeat();
-    });
-  }
-
-  private setLeaveDjSeatListener(socket: Socket): void {
-    socket.on(SocketMessages.leaveDjSeat, (msg: ILeaveDjSeat) => {
-      this.botState.setPlayingUserUuids(msg.djs);
-
-      this.takeOrLeaveDjSeat();
-    });
-  }
-
   private takeOrLeaveDjSeat(): void {
-    if (this.botState.getBotMode() === "testing") {
+    if (this.botState.botMode === "testing") {
       return;
     }
-
     const shouldStayOnStage = this.botState.checkIfShouldStayOnStage(
       this.botUuid
     );
 
     if (shouldStayOnStage) {
-      this.takeDjSeat();
+      this.addDj();
     } else {
-      this.emitLeaveDjSeatMsg();
+      this.removeDj();
     }
   }
 
-  configureListeners(socket: Socket): void {
-    this.setPlayNextSongListener(socket);
-    this.setSendInitialStateListener(socket);
-    this.setTakeDjSeatListener(socket);
-    this.setLeaveDjSeatListener(socket);
-  }
-
-  setSocket(socket: Socket | undefined): void {
-    this.socket = socket;
-  }
-
-  public async connect(
-    socketDomain: string,
-    socketPath: string,
-    password: string | null
-  ): Promise<{ connected: boolean }> {
-    const socket = this.io(`https://${socketDomain}`, {
-      path: socketPath,
-      transportOptions: {
-        polling: {
-          extraHeaders: {
-            "X-TT-password": password,
-            authorization: `Bearer ${this.accessToken}`,
-          },
-        },
-      },
-      reconnectionAttempts: 7,
-      reconnectionDelay: 5000,
-      reconnection: true,
-    });
-
-    this.configureListeners(socket);
-
-    return new Promise((resolve, reject) => {
-      socket.on("connect", () => {
-        console.info("Connected in client");
-        this.setSocket(socket);
-        resolve({ connected: true });
-      });
-
-      socket.on("connect_error", (error: Error) => {
-        console.log({ msg: "Error in Bot.connect", error });
-        reject(error.message);
-      });
-    });
-  }
-
-  private async close(): Promise<boolean> {
-    return new Promise((resolveClose, _reject) => {
-      this.socket?.on("disconnect", () => {
-        this.setSocket(undefined);
-        console.log("Connection closed sucefully");
-
-        resolveClose(true);
-      });
-
-      this.socket?.on("error", (error: Error) => {
-        this.setSocket(undefined);
-        console.log({ msg: "Connection closed failed", error });
-
-        resolveClose(true);
-      });
-
-      if (!this.socket) {
-        resolveClose(true);
-      }
-
-      this?.socket?.io.reconnection(false);
-      this?.socket?.close();
-    });
-  }
-
-  private async sendNextTrackToPlay(): Promise<void> {
+  private async updateNextSong(): Promise<void> {
     const song = this.botState.getRandomSong();
     if (process.env.NODE_ENV !== "test") {
       await this.delay(500);
@@ -196,25 +64,26 @@ export class Bot {
       return;
     }
 
-    const nextTrack = {
+    this.socketClient?.action<UpdateNextSongAction>(ActionName.updateNextSong, {
       song,
-      trackUrl: "",
-    };
-
-    this.socket?.emit(SocketMessages.sendNextTrackToPlay, nextTrack);
+    });
   }
 
-  private getSongsFromPlaylist(playlist: ISpotifyPlaylist): Song[] {
-    const songs = playlist.tracks.items.map((item) => {
-      const song: Song = {
+  private convertTracksToCrateSongs(
+    tracks: ISpotifyTrack[]
+  ): MinimalCrateSongResDTO[] {
+    const songs = tracks.map((item) => {
+      const song: MinimalCrateSongResDTO = {
         artistName: item.track.artists[0].name,
         duration: Math.floor(item.track.duration_ms / 1000),
-        genre: "",
-        id: "spotify:track:" + item.track.id,
+        genre: null,
+        musicProviders: {
+          spotify: "spotify:track:" + item.track.id,
+        },
         isrc: item.track.external_ids.isrc,
-        musicProvider: "spotify",
         trackName: item.track.name,
-        trackUrl: "",
+        playbackToken: null,
+        thumbnails: {},
       };
 
       return song;
@@ -223,100 +92,104 @@ export class Bot {
     return songs;
   }
 
+  public setSocketClient(socketClient: SocketClient | undefined) {
+    this.socketClient = socketClient;
+  }
+
+  public configureListener(socketClient: SocketClient) {
+    socketClient.on("statefulMessage", (message) => {
+      if (this.botState.roomState) {
+        this.botState.setRoomState(
+          applyPatch(this.botState.roomState, message.statePatch).newDocument
+        );
+
+        if (
+          message.name === ServerMessageName.addedDj ||
+          message.name === ServerMessageName.removedDj
+        ) {
+          this.takeOrLeaveDjSeat();
+        }
+
+        if (message.name === ServerMessageName.playedSong) {
+          this.updateNextSong();
+        }
+      }
+    });
+  }
+
   public async connectToRoom(
     roomSlug: string,
-    roomPassword: string | null
+    roomPassword?: string
   ): Promise<void> {
     await this.disconnectFromRoom();
-    const roomConfig = await getRoomConfigForClient(roomSlug, this.accessToken);
+    const roomUuid = (await getRoomConfigForClient(roomSlug, this.accessToken))
+      ?.uuid;
 
-    if (!roomConfig) {
+    if (!roomUuid) {
       return;
     }
 
-    await this.connect(
-      roomConfig.socketDomain,
-      roomConfig.socketPath,
-      roomPassword
-    );
+    this.socketClient = new SocketClient(SOCKET_URL);
+
+    const { state } = await this.socketClient.joinRoom(this.accessToken, {
+      roomUuid,
+      password: roomPassword,
+    });
 
     this.botState.setRoomSlug(roomSlug);
+    this.botState.setRoomState(state);
+
+    this.configureListener(this.socketClient);
   }
 
-  public async disconnectFromRoom(): Promise<boolean> {
-    this.leaveDjSeat();
+  public async disconnectFromRoom(): Promise<void> {
+    this.removeDj();
+    this.botState.setRoomSlug(undefined);
+    this.botState.setRoomState(undefined);
     if (process.env.NODE_ENV !== "test") {
       await this.delay(1000);
     }
 
-    const isClosed = await this.close();
-    this.botState.setRoomSlug(undefined);
-
-    return isClosed;
+    await this.socketClient?.disconnect();
   }
 
   public async playPlaylist(playlistId: string): Promise<void> {
     if (this.botState.roomSlug === undefined) {
-      throw new Error("Please connect to the room first");
+      console.error("Please connect to the room first");
+      return;
     }
 
-    this.leaveDjSeat();
+    await this.removeDj();
 
-    const playlist = await fetchSpotifyPlaylist(
+    const tracks = await fetchSpotifyPlaylistTracks(
       playlistId,
       this.spotifyCredentials
     );
 
-    if (!playlist) {
+    if (!tracks || !tracks.length) {
+      console.log("Playlist not found");
       return;
     }
 
-    const songs = this.getSongsFromPlaylist(playlist);
+    const songs = this.convertTracksToCrateSongs(tracks);
     this.botState.setSongs(songs);
 
-    if (this.botState.getBotMode() === "testing") {
-      this.takeDjSeat();
-    } else {
-      this.takeOrLeaveDjSeat();
-    }
-
-    this.sendNextTrackToPlay();
+    this.takeOrLeaveDjSeat();
+    this.updateNextSong();
   }
 
-  public async leaveDjSeat(): Promise<void> {
-    this.emitLeaveDjSeatMsg();
-  }
-
-  private emitLeaveDjSeatMsg(): void {
+  public async removeDj(): Promise<void> {
     if (this.botState.isBotDj(this.botUuid)) {
-      this.socket?.emit(SocketMessages.leaveDjSeat, {
-        userUuid: this.botUuid,
-      });
+      this.socketClient?.action<RemoveDjAction>(ActionName.removeDj);
     }
   }
 
-  public takeDjSeat(): void {
-    const nextTrack =
-      this.botState.songs.length === 0
-        ? null
-        : {
-            song: this.botState.songs[0],
-          };
-
-    this.emitTakeDjSeatMsg(nextTrack);
-  }
-
-  private emitTakeDjSeatMsg(nextTrack: null | { song: Song }): void {
-    if (
-      !this.botState.checkIfShouldStayOnStage(this.botUuid) ||
-      this.botState.isBotDj(this.botUuid)
-    ) {
+  public addDj(): void {
+    if (this.botState.isBotDj(this.botUuid)) {
       return;
     }
+    const song = this.botState.songs[0];
 
-    this.socket?.emit(SocketMessages.takeDjSeat, {
-      avatarId: this.avatarId,
-      nextTrack,
-    });
+    this.socketClient?.action<AddDjAction>(ActionName.addDj, { song });
   }
 }

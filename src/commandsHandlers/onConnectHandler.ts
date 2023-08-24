@@ -18,7 +18,7 @@ export const onConnectHandler = (
 
   const [botNumber, roomSlug] = args;
 
-  const roomPassword = args[2] ? args[2] : null;
+  const roomPassword = args[2];
 
   const isValidKey = checkBotKey(botNumber, bots, message);
 

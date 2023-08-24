@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 
-import { commandPrefix } from "../const";
+import { COMMAND_PREFIX } from "../const";
 import { BotMessages } from "../types";
 
 interface IGetArgs {
@@ -9,14 +9,14 @@ interface IGetArgs {
 }
 
 export const getArgsFromMessage = (message: Message): IGetArgs => {
-  if (!message.content.startsWith(commandPrefix) || message.author.bot) {
+  if (!message.content.startsWith(COMMAND_PREFIX) || message.author.bot) {
     return {
       command: undefined,
       args: undefined,
     };
   }
 
-  const args = message.content.slice(commandPrefix.length).trim().split(" ");
+  const args = message.content.slice(COMMAND_PREFIX.length).trim().split(" ");
   const command = args.shift()?.toLocaleLowerCase() as BotMessages;
 
   return {
