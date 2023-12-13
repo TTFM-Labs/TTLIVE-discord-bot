@@ -23,7 +23,7 @@ export class BotState {
       return false;
     }
     const playingDjs =
-      this.roomState?.djs.filter((dj) => dj.userProfile.uuid !== botUuid)
+      this.roomState?.djs.filter((dj) => dj.uuid !== botUuid)
         .length ?? 0;
 
     return playingDjs === 0 || this.botMode === "testing";
@@ -31,7 +31,7 @@ export class BotState {
 
   public isBotDj(botUuid: string): boolean {
     const bot = this.roomState?.djs.some(
-      (dj) => dj.userProfile.uuid === botUuid
+      (dj) => dj.uuid === botUuid
     );
 
     return !!bot;
